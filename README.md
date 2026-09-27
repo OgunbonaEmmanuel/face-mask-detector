@@ -18,17 +18,18 @@ Place this README, requirements, and `.gitignore` in the main `FaceMaskDetection
 
 | Path | Purpose |
 | --- | --- |
-| `backend/` | FastAPI source |
-| `frontend/` | Streamlit source |
-| `face_mask_model.keras` | Complete classifier loaded by the backend |
-| `resnet50_local.keras` | Optional base-model export referenced in the notebook |
+| `backend/main.py` | FastAPI prediction service |
+| `frontend/main.py` | Streamlit interface |
+| `face_mask_model.keras` | Classifier used when starting the backend from the project root |
+| `backend/face_mask_model.keras` | Additional classifier copy included in the repository |
+| `resnet50_local.keras` | Optional local base-model export; excluded from GitHub |
 | `main_resnet.ipynb` | ResNet50 training outline and local inference experiments |
 | `main.ipynb` | Additional notebook; not reviewed for this documentation |
-| `data/` | Local dataset |
+| `data/` | Local training images; excluded from GitHub |
 | `facepred.png` | Image asset visible in the project structure |
 | `archive.zip` | Dataset archive; excluded from Git |
 
-The commands below assume you save the supplied backend as `backend/main.py` and frontend as `frontend/app.py`. If your filenames differ, adjust the commands accordingly.
+The training dataset, `archive.zip`, and `resnet50_local.keras` are not included in the repository. They are not needed to run predictions with the complete classifier. Retraining requires obtaining the dataset separately. Python caches and local environment files are also excluded.
 
 ## Installation
 
@@ -60,7 +61,7 @@ Requirements cover the supplied application and `main_resnet.ipynb`. OpenCV's de
 
 ## Run the application
 
-Keep `face_mask_model.keras` in the project root. The backend loads this relative path, so start both commands from the main `FaceMaskDetection` folder.
+The repository includes classifier copies in the project root and in `backend/`. The supplied backend loads `face_mask_model.keras` relative to its working directory. The commands below use the root copy: start both terminals in the main `FaceMaskDetection` folder. Only one matching classifier file is needed for a chosen startup directory.
 
 Terminal 1, with the environment active:
 
@@ -71,7 +72,7 @@ python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 Terminal 2, with the same environment active:
 
 ```bash
-python -m streamlit run frontend/app.py
+python -m streamlit run frontend/main.py
 ```
 
 Open the Streamlit address shown in the terminal. Upload an image or click **GO LIVE**. The frontend contacts `http://127.0.0.1:8000`.
@@ -127,13 +128,13 @@ The saved notebook does not contain training metrics, so no accuracy claim is ma
 
 ### Reproduce training
 
-1. Obtain the dataset used for the project and place images in `data/with_mask/` and `data/without_mask/`. Its download source and licence have not been supplied.
+1. Obtain the original training dataset separately; the training images are not included in this repository. Place images in `data/with_mask/` and `data/without_mask/`. An exact download source and licence have not yet been documented, so exact dataset reproduction is not currently provided.
 2. Open `main_resnet.ipynb` in VS Code or run `python -m notebook`.
 3. Uncomment the dataset-loading, model-building, preprocessing-map, compilation, training, and model-export cells, including `from tensorflow.keras import models, layers`.
 4. Run those cells in order. Verify `train_ds.class_names` before mapping preprocessing, so the class order agrees with the API labels.
 5. Save the resulting classifier as `face_mask_model.keras` in the project root.
 
-The optional `resnet50_local.keras` export is not loaded by the supplied backend. The complete classifier is the artifact needed for inference.
+The optional `resnet50_local.keras` export is excluded from GitHub and is not loaded by the backend. To rebuild from the commented training code, create the ImageNet-pretrained backbone as shown in the notebook; an existing local base-model export is not required. The complete `face_mask_model.keras` classifier is sufficient for inference.
 
 ## Known limitations
 
@@ -148,6 +149,13 @@ The optional `resnet50_local.keras` export is not loaded by the supplied backend
 
 This is a portfolio prototype. The source and notebook were reviewed, but the model, API, and webcam pipeline were not executed during documentation preparation.
 
-## GitHub preparation
+## Files excluded from GitHub
 
-The accompanying `.gitignore` excludes `archive.zip`, secrets, virtual environments, and caches. It leaves the model files and dataset eligible for upload pending file-size checks. Check individual model sizes and dataset size before committing. Include dataset attribution and only redistribute images you have permission to share.
+The repository excludes:
+
+- `data/`: training images retained locally.
+- `archive.zip`: the dataset archive.
+- `resnet50_local.keras`: optional base-model export.
+- Python caches, virtual environments, and secret environment files.
+
+The application source, notebooks, documentation, requirements, and complete classifier remain included. Ignoring local training files does not prevent inference with the saved classifier. Anyone wishing to retrain must obtain the dataset separately and follow the notebook setup above.
