@@ -1,0 +1,8 @@
+
+/data/
+
+archive.zip
+resnet50_local.keras
+__pycache__/
+*.py[cod]
+gitignore
